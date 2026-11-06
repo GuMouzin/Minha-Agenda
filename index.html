@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Agenda</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="top-bar">
+        <header>
+            <h1>Minhas Tarefas</h1>
+            <div class="header-actions">
+                <button id="btn-calendario" title="Abrir calendário">📅</button>
+                <button id="btn-fechar" title="Minimizar para bandeja">✖</button>
+            </div>
+        </header>
+
+        <!-- Barra de dias da semana -->
+        <div class="tabs-wrapper">
+            <div class="cir-tabs">
+                <input type="radio" class="cir-tabs__r" name="day" id="day-dom" data-day="Domingo" data-day-index="0">
+                <label class="cir-tabs__t" for="day-dom">Dom</label>
+
+                <input type="radio" class="cir-tabs__r" name="day" id="day-seg" data-day="Segunda" data-day-index="1">
+                <label class="cir-tabs__t" for="day-seg">Seg</label>
+
+                <input type="radio" class="cir-tabs__r" name="day" id="day-ter" data-day="Terça" data-day-index="2">
+                <label class="cir-tabs__t" for="day-ter">Ter</label>
+
+                <input type="radio" class="cir-tabs__r" name="day" id="day-qua" data-day="Quarta" data-day-index="3">
+                <label class="cir-tabs__t" for="day-qua">Qua</label>
+
+                <input type="radio" class="cir-tabs__r" name="day" id="day-qui" data-day="Quinta" data-day-index="4">
+                <label class="cir-tabs__t" for="day-qui">Qui</label>
+
+                <input type="radio" class="cir-tabs__r" name="day" id="day-sex" data-day="Sexta" data-day-index="5">
+                <label class="cir-tabs__t" for="day-sex">Sex</label>
+
+                <input type="radio" class="cir-tabs__r" name="day" id="day-sab" data-day="Sábado" data-day-index="6">
+                <label class="cir-tabs__t" for="day-sab">Sáb</label>
+            </div>
+        </div>
+
+        <!-- Painel de calendário flutuante -->
+        <div id="calendar-overlay" class="calendar-overlay hidden">
+            <div class="calendar-panel">
+                <div class="calendar-header">
+                    <button id="cal-prev" title="Mês anterior">‹</button>
+                    <span id="cal-month-year">Mês Ano</span>
+                    <button id="cal-next" title="Próximo mês">›</button>
+                </div>
+                <div class="calendar-weekdays">
+                    <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
+                </div>
+                <div class="calendar-grid" id="calendar-grid"></div>
+                <button id="cal-today-btn" class="cal-today-btn">Hoje</button>
+            </div>
+        </div>
+    </div>
+
+    <main>
+        <h2 id="current-day-title">Dia</h2>
+
+        <div class="input-group">
+            <input type="text" id="task-input" placeholder="O que você precisa fazer?">
+            
+            <div class="time-input-container" id="time-container" title="Horário (opcional)">
+                <input type="text" id="task-time-input" placeholder="HH:MM" maxlength="5" autocomplete="off">
+            </div>
+
+            <button id="add-task-btn">+</button>
+        </div>
+
+        <ul id="task-list"></ul>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

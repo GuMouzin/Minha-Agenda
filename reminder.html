@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Lembrete de Tarefa</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background-color: #f0f4f8;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            -webkit-app-region: drag; /* Permite arrastar a janelinha */
+        }
+        .reminder-box {
+            text-align: center;
+        }
+        .reminder-title {
+            font-size: 0.95rem;
+            color: #1a365d;
+            margin-bottom: 8px;
+        }
+        .reminder-task-text {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            padding: 10px 15px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            color: #1e293b;
+            font-weight: 300;
+            word-break: break-word;
+            max-height: 70px;
+            overflow-y: auto;
+        }
+        .reminder-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            -webkit-app-region: no-drag; /* Libera cliques nos botões */
+        }
+        .pill-btn {
+            flex: 1;
+            padding: 8px 0;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            transition: background 0.2s;
+        }
+        .btn-yes {
+            background-color: #2563eb;
+            color: #ffffff;
+        }
+        .btn-yes:hover {
+            background-color: #1d4ed8;
+        }
+        .btn-no {
+            background-color: #e2e8f0;
+            color: #1e293b;
+        }
+        .btn-no:hover {
+            background-color: #cbd5e1;
+        }
+    </style>
+</head>
+<body>
+    <div class="reminder-box">
+        <div class="reminder-title">⏰ Você concluiu esta tarefa?</div>
+        <div class="reminder-task-text" id="popup-task-text">Carregando...</div>
+    </div>
+    <div class="reminder-actions">
+        <button class="pill-btn btn-no" id="btn-no">Não</button>
+        <button class="pill-btn btn-yes" id="btn-yes">Sim</button>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+        let currentTaskId = null;
+
+        ipcRenderer.on('set-reminder-data', (event, { taskText, taskId }) => {
+            document.getElementById('popup-task-text').innerText = taskText;
+            currentTaskId = taskId;
+        });
+
+        document.getElementById('btn-yes').addEventListener('click', () => {
+            if (currentTaskId) {
+                ipcRenderer.send('task-completed-from-reminder', currentTaskId);
+            }
+            ipcRenderer.send('close-reminder');
+        });
+
+        document.getElementById('btn-no').addEventListener('click', () => {
+            ipcRenderer.send('close-reminder');
+        });
+    </script>
+</body>
+</html>
