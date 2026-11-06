@@ -30,7 +30,6 @@ function createWindow() {
   });
 }
 
-// Cria a janela flutuante de lembrete (pop-up)
 function openReminderWindow(taskText, taskId) {
   if (reminderWindow) {
     reminderWindow.close();
@@ -60,14 +59,12 @@ function openReminderWindow(taskText, taskId) {
   });
 }
 
-// Fecha o pop-up se o usuário responder
 ipcMain.on('close-reminder', () => {
   if (reminderWindow) {
     reminderWindow.close();
   }
 });
 
-// Comunica com o script principal para concluir a tarefa se clicar em "Sim"
 ipcMain.on('task-completed-from-reminder', (event, taskId) => {
   if (mainWindow) {
     mainWindow.webContents.send('complete-task-action', taskId);
@@ -127,7 +124,6 @@ app.on('window-all-closed', () => {
   }
 });
 
-// Recebe o comando do renderer para abrir o pop-up
 ipcMain.on('trigger-reminder', (event, { text, id }) => {
   openReminderWindow(text, id);
 });

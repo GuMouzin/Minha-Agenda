@@ -1,6 +1,5 @@
 const { ipcRenderer } = require('electron');
 
-// --- BOTÃO FECHAR (minimizar para bandeja) ---
 const btnFechar = document.getElementById('btn-fechar');
 if (btnFechar) {
     btnFechar.addEventListener('click', () => {
@@ -8,7 +7,6 @@ if (btnFechar) {
     });
 }
 
-// --- CONSTANTES DE DATA ---
 const MESES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 const DIAS_SEMANA_COMPLETO = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
 
@@ -35,7 +33,6 @@ function escapeHtml(str) {
     return div.innerHTML;
 }
 
-// --- ESTADO ---
 let tasksData = JSON.parse(localStorage.getItem('myTasksByDate')) || {};
 let activeDate = normalizeDate(new Date());
 let calendarViewDate = new Date(activeDate.getFullYear(), activeDate.getMonth(), 1);
@@ -51,7 +48,6 @@ function saveTasks() {
     localStorage.setItem('myTasksByDate', JSON.stringify(tasksData));
 }
 
-// --- ELEMENTOS ---
 const dayRadios = document.querySelectorAll('.cir-tabs__r');
 const currentDayTitle = document.getElementById('current-day-title');
 const taskInput = document.getElementById('task-input');
@@ -68,7 +64,6 @@ const calPrev = document.getElementById('cal-prev');
 const calNext = document.getElementById('cal-next');
 const calTodayBtn = document.getElementById('cal-today-btn');
 
-// --- INTERAÇÃO DA CAIXA DE HORÁRIO (CLIQUE E MÁSCARA 24H) ---
 if (timeContainer && taskTimeInput) {
     timeContainer.addEventListener('click', () => {
         taskTimeInput.focus();
@@ -93,7 +88,6 @@ if (timeContainer && taskTimeInput) {
     });
 }
 
-// --- CALENDÁRIO ---
 function openCalendar() {
     calendarViewDate = new Date(activeDate.getFullYear(), activeDate.getMonth(), 1);
     renderCalendar();
@@ -181,7 +175,6 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// --- ABAS DE DIA DA SEMANA ---
 function getDateForWeekdayIndex(idx) {
     const today = new Date();
     const todayIdx = today.getDay();
@@ -202,7 +195,6 @@ dayRadios.forEach(radio => {
     });
 });
 
-// --- INTERFACE ---
 function updateInterface() {
     const weekdayIdx = activeDate.getDay();
     currentDayTitle.innerText = `${DIAS_SEMANA_COMPLETO[weekdayIdx]} — ${activeDate.getDate()} de ${MESES[activeDate.getMonth()]}`;
@@ -220,7 +212,6 @@ function updateInterface() {
     });
 }
 
-// --- RENDERIZAÇÃO DAS TAREFAS ---
 function saveAndRender() {
     saveTasks();
     taskList.innerHTML = '';
@@ -275,7 +266,6 @@ function saveAndRender() {
     });
 }
 
-// --- EDIÇÃO DE HORÁRIO INLINE ---
 function editTaskTime(id, badgeEl) {
     const key = formatDateKey(activeDate);
     const list = getTasksForDate(key);
@@ -310,7 +300,7 @@ function editTaskTime(id, badgeEl) {
         if (committed) return;
         committed = true;
         task.time = input.value.trim() || null;
-        task.nextCheckTime = null; // Reseta o ciclo se alterar o horário manualmente
+        task.nextCheckTime = null;
         saveAndRender();
         if (calendarOpen) renderCalendar();
     };
@@ -321,7 +311,6 @@ function editTaskTime(id, badgeEl) {
     input.addEventListener('blur', commit);
 }
 
-// --- DRAG AND DROP ---
 function setupDragAndDrop(li, id) {
     const handle = li.querySelector('.drag-handle');
 
@@ -367,7 +356,6 @@ function setupDragAndDrop(li, id) {
     });
 }
 
-// --- ADICIONAR / MARCAR / EXCLUIR TAREFAS ---
 function addTask() {
     const text = taskInput.value.trim();
     if (text === '') return;
@@ -403,7 +391,7 @@ function toggleTask(id) {
     const task = list.find(t => t.id === id);
     if (task) {
         task.done = !task.done;
-        if (task.done) task.nextCheckTime = null; // Para de checar se foi feita
+        if (task.done) task.nextCheckTime = null;
     }
     saveAndRender();
 }
@@ -417,7 +405,6 @@ function deleteTask(id) {
     if (calendarOpen) renderCalendar();
 }
 
-// Ouve o comando vindo da janela pop-up se o usuário clicar em "Sim"
 ipcRenderer.on('complete-task-action', (event, taskId) => {
     const key = formatDateKey(activeDate);
     const list = getTasksForDate(key);
@@ -429,7 +416,6 @@ ipcRenderer.on('complete-task-action', (event, taskId) => {
     }
 });
 
-// --- SISTEMA DE CHECAGEM E TOLERÂNCIA DE 20 MINUTOS ---
 function playBeep() {
     try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -468,21 +454,16 @@ function checkAlarms() {
 
         const [h, m] = task.time.split(':').map(Number);
         const taskMinutesTotal = h * 60 + m;
-
-        // Define o horário do primeiro aviso (+20 minutos do horário estipulado)
         const triggerMinutes = taskMinutesTotal + 20;
 
         if (!task.nextCheckTime) {
-            // Se o horário atual já passou de (horário da tarefa + 20 min)
             if (currentMinutesTotal >= triggerMinutes) {
                 playBeep();
                 ipcRenderer.send('trigger-reminder', { text: task.text, id: task.id });
-                // Agenda o próximo aviso para daqui a 20 minutos caso responda "Não" ou ignore
                 task.nextCheckTime = currentMinutesTotal + 20;
                 updated = true;
             }
         } else {
-            // Se já foi disparado antes, verifica se deu o ciclo de +20 min novamente
             if (currentMinutesTotal >= task.nextCheckTime) {
                 playBeep();
                 ipcRenderer.send('trigger-reminder', { text: task.text, id: task.id });
@@ -499,7 +480,6 @@ function checkAlarms() {
 
 setInterval(checkAlarms, 15000);
 
-// --- INICIALIZAÇÃO ---
 updateInterface();
 saveAndRender();
 checkAlarms();
