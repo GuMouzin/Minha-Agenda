@@ -8,6 +8,16 @@
 O **Minha-Agenda** nasceu da necessidade de ter uma ferramenta de produtividade leve, customizada e integrada ao ambiente de trabalho (Windows), focada em organização diária de alta performance sem as distrações de aplicações web tradicionais baseadas em navegador.
 
 ---
+## 📸 Demonstração Visual
+
+<p align="center">
+  <img src="docs/home.png" width="45%" alt="Tela Inicial - Minhas Tarefas" />
+  <img src="docs/calendar.png" width="45%" alt="Visão de Calendário" />
+</p>
+<p align="center">
+  <img src="docs/tray.png" width="45%" alt="Menu Tray da Bandeja do Sistema" />
+  <img src="docs/reminder.png" width="45%" alt="Pop-up de Lembrete e Conclusão" />
+</p>
 
 ## 🛠️ Stack Tecnológica
 * **Core:** Node.js, JavaScript (ES6+)
