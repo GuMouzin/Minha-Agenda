@@ -1,16 +1,22 @@
 {
   "name": "minha-agenda",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Minha Agenda",
   "author": "Gustavo Mouzin",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
-    "build": "electron-builder"
+    "start": "npm run build:sync && electron .",
+    "build": "npm run build:sync && electron-builder",
+    "build:sync": "node scripts/build-web.js",
+    "build:web": "node scripts/build-web.js --www",
+    "android:sync": "npm run build:web && npx cap sync android",
+    "android:open": "npx cap open android"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.6.2",
     "electron": "^30.0.0",
-    "electron-builder": "^24.13.3"
+    "electron-builder": "^24.13.3",
+    "esbuild": "^0.28.2"
   },
   "build": {
     "appId": "com.minhaagenda.app",
@@ -32,10 +38,22 @@
       "reminder.html",
       "style.css",
       "script.js",
-      "assets/**/*"
+      "assets/**/*",
+      "mobile.js",
+      "firebase-config.js",
+      "sync.bundle.js"
     ],
     "directories": {
       "output": "dist"
     }
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.6.2",
+    "@capacitor/core": "^8.6.2",
+    "@capacitor/local-notifications": "^8.3.1",
+    "firebase": "^13.4.0"
+  },
+  "allowScripts": {
+    "electron@30.5.1": true
   }
 }
