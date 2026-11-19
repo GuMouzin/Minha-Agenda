@@ -1,9 +1,3 @@
 node_modules/
 dist/
 .DS_Store
-www/
-sync.bundle.js
-android/app/build/
-android/.gradle/
-android/local.properties
-android/.idea/

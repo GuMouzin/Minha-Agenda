@@ -11,7 +11,6 @@
         <header>
             <h1>Minhas Tarefas</h1>
             <div class="header-actions">
-                <button id="btn-sync" title="Sincronização" data-state="signedout">☁</button>
                 <button id="btn-calendario" title="Abrir calendário">📅</button>
                 <button id="btn-fechar" title="Minimizar para bandeja">✖</button>
             </div>
@@ -39,26 +38,6 @@
 
                 <input type="radio" class="cir-tabs__r" name="day" id="day-sab" data-day="Sábado" data-day-index="6">
                 <label class="cir-tabs__t" for="day-sab">Sáb</label>
-            </div>
-        </div>
-
-        <div id="sync-overlay" class="calendar-overlay hidden">
-            <div class="calendar-panel sync-panel">
-                <h3>Sincronização</h3>
-                <p id="sync-status" class="sync-status"></p>
-                <form id="sync-form" class="sync-form">
-                    <input type="email" id="sync-email" placeholder="E-mail" autocomplete="username" required>
-                    <input type="password" id="sync-pass" placeholder="Senha (mín. 6)" autocomplete="current-password" required minlength="6">
-                    <div class="sync-buttons">
-                        <button type="submit">Entrar</button>
-                        <button type="button" id="sync-signup">Criar conta</button>
-                    </div>
-                </form>
-                <p id="sync-msg" class="sync-msg"></p>
-                <div class="sync-buttons">
-                    <button type="button" id="sync-signout" class="hidden">Sair da conta</button>
-                    <button type="button" id="sync-close">Fechar</button>
-                </div>
             </div>
         </div>
 
@@ -94,9 +73,6 @@
         <ul id="task-list"></ul>
     </main>
 
-    <script src="firebase-config.js"></script>
-    <script src="sync.bundle.js"></script>
-    <script src="mobile.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

@@ -1,10 +1,4 @@
-// No Electron existe `require`; no Android (Capacitor) não, então usamos um stub.
-const IS_ELECTRON = typeof require === 'function';
-const IS_MOBILE = !IS_ELECTRON;
-const ipcRenderer = IS_ELECTRON
-    ? require('electron').ipcRenderer
-    : { send() {}, on() {} };
-if (IS_MOBILE) document.documentElement.classList.add('mobile');
+const { ipcRenderer } = require('electron');
 
 const btnFechar = document.getElementById('btn-fechar');
 if (btnFechar) {
@@ -52,17 +46,6 @@ function getTasksForDate(dateKey) {
 
 function saveTasks() {
     localStorage.setItem('myTasksByDate', JSON.stringify(tasksData));
-    if (window.AgendaSync) AgendaSync.push(tasksData);
-    if (window.AgendaMobile) AgendaMobile.reschedule(tasksData);
-}
-
-// Dados vindos da nuvem: substitui o estado local sem reenviar.
-function applyRemoteData(data) {
-    tasksData = data;
-    localStorage.setItem('myTasksByDate', JSON.stringify(tasksData));
-    if (window.AgendaMobile) AgendaMobile.reschedule(tasksData);
-    renderTasks();
-    if (calendarOpen) renderCalendar();
 }
 
 const dayRadios = document.querySelectorAll('.cir-tabs__r');
@@ -231,10 +214,6 @@ function updateInterface() {
 
 function saveAndRender() {
     saveTasks();
-    renderTasks();
-}
-
-function renderTasks() {
     taskList.innerHTML = '';
 
     const key = formatDateKey(activeDate);
@@ -463,8 +442,6 @@ function playBeep() {
 }
 
 function checkAlarms() {
-    // No Android os lembretes são notificações agendadas (mobile.js).
-    if (IS_MOBILE) return;
     const now = new Date();
     const key = formatDateKey(normalizeDate(now));
     const currentMinutesTotal = now.getHours() * 60 + now.getMinutes();
@@ -504,96 +481,5 @@ function checkAlarms() {
 setInterval(checkAlarms, 15000);
 
 updateInterface();
-renderTasks();
-
-// ---------- Sincronização (Firebase) ----------
-const syncBtn = document.getElementById('btn-sync');
-const syncOverlay = document.getElementById('sync-overlay');
-const syncStatusEl = document.getElementById('sync-status');
-const syncForm = document.getElementById('sync-form');
-const syncEmail = document.getElementById('sync-email');
-const syncPass = document.getElementById('sync-pass');
-const syncMsg = document.getElementById('sync-msg');
-const syncSignOut = document.getElementById('sync-signout');
-
-const SYNC_LABELS = {
-    unconfigured: 'Firebase não configurado (veja docs/SYNC_SETUP.md)',
-    signedout: 'Desconectado',
-    connecting: 'Conectando…',
-    online: 'Sincronizado',
-    pending: 'Offline — alterações serão enviadas ao reconectar',
-    error: 'Erro de sincronização',
-};
-
-// Conclusões vindas da notificação do Android só são aplicadas depois que a
-// nuvem respondeu, para o estado remoto não sobrescrever a conclusão.
-let completionGate = !(window.AgendaSync && AgendaSync.configured);
-
-function completeTaskById(id) {
-    for (const key of Object.keys(tasksData)) {
-        const task = (tasksData[key] || []).find(t => t.id === id);
-        if (task) {
-            task.done = true;
-            task.nextCheckTime = null;
-            saveAndRender();
-            if (calendarOpen) renderCalendar();
-            return;
-        }
-    }
-}
-
-function drainCompletions() {
-    if (!completionGate || !window.AgendaMobile) return;
-    AgendaMobile.takePending().forEach(completeTaskById);
-}
-
-function onSyncStatus({ state, detail, email }) {
-    if (state !== 'connecting') {
-        completionGate = true;
-        drainCompletions();
-    }
-    if (!syncBtn) return;
-    syncBtn.dataset.state = state;
-    syncStatusEl.textContent = (SYNC_LABELS[state] || state) + (email ? ` — ${email}` : '') + (state === 'error' && detail ? `: ${detail}` : '');
-    const signedIn = !!email;
-    syncForm.classList.toggle('hidden', signedIn || state === 'unconfigured');
-    syncSignOut.classList.toggle('hidden', !signedIn);
-    if (signedIn && state === 'online') syncOverlay.classList.add('hidden');
-}
-
-if (syncBtn) {
-    syncBtn.addEventListener('click', () => syncOverlay.classList.toggle('hidden'));
-    document.getElementById('sync-close').addEventListener('click', () => syncOverlay.classList.add('hidden'));
-    syncSignOut.addEventListener('click', () => AgendaSync.signOut());
-
-    const authAction = (fn) => async (e) => {
-        e.preventDefault();
-        syncMsg.textContent = '';
-        try {
-            await fn(syncEmail.value.trim(), syncPass.value);
-            syncPass.value = '';
-        } catch (err) {
-            syncMsg.textContent = err.code ? err.code.replace('auth/', '') : err.message;
-        }
-    };
-    syncForm.addEventListener('submit', authAction((e, p) => AgendaSync.signIn(e, p)));
-    document.getElementById('sync-signup').addEventListener('click', authAction((e, p) => AgendaSync.signUp(e, p)));
-
-    if (window.AgendaSync) {
-        AgendaSync.init({
-            getData: () => tasksData,
-            applyRemote: applyRemoteData,
-            onStatus: onSyncStatus,
-        });
-    } else {
-        onSyncStatus({ state: 'unconfigured' });
-    }
-}
-
-if (window.AgendaMobile) {
-    AgendaMobile.onComplete = drainCompletions;
-    AgendaMobile.reschedule(tasksData);
-    drainCompletions();
-}
 saveAndRender();
 checkAlarms();
